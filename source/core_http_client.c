@@ -1383,6 +1383,8 @@ static HTTPStatus_t addHeader( HTTPRequestHeaders_t * pRequestHeaders,
 
     /* If we have enough room for the new header line, then write it to the
      * header buffer. */
+      dbc_info_mem("addHeader: ", ( unsigned long ) toAddLen, ( unsigned long ) (pRequestHeaders->bufferLen - pRequestHeaders->headersLen));
+
     if( ( backtrackHeaderLen + toAddLen ) <= pRequestHeaders->bufferLen )
     {
         /* Write "<Field>: <Value> \r\n" to the headers buffer. */
@@ -1431,6 +1433,7 @@ static HTTPStatus_t addHeader( HTTPRequestHeaders_t * pRequestHeaders,
                     "RequiredBytes=%lu, RemainingBufferSize=%lu",
                     ( unsigned long ) toAddLen,
                     ( unsigned long ) ( pRequestHeaders->bufferLen - pRequestHeaders->headersLen ) ) );
+        dbc_error_mem("Unable to add header in buffer: ", ( unsigned long ) toAddLen, ( unsigned long ) (pRequestHeaders->bufferLen - pRequestHeaders->headersLen));
         returnStatus = HTTPInsufficientMemory;
     }
 
@@ -1542,7 +1545,10 @@ static HTTPStatus_t writeRequestLine( HTTPRequestHeaders_t * pRequestHeaders,
 
     if( ( toAddLen + pRequestHeaders->headersLen ) > pRequestHeaders->bufferLen )
     {
+        dbc_error_mem("writeRequestLine", toAddLen + pRequestHeaders->headersLen, pRequestHeaders->bufferLen);
         returnStatus = HTTPInsufficientMemory;
+    } else {
+      dbc_info_mem("writeRequestLine", toAddLen + pRequestHeaders->headersLen, pRequestHeaders->bufferLen);
     }
 
     if( returnStatus == HTTPSuccess )
@@ -1991,6 +1997,7 @@ static HTTPStatus_t getFinalResponseStatus( HTTPParsingState_t parsingState,
     assert( parsingState >= HTTP_PARSING_NONE &&
             parsingState <= HTTP_PARSING_COMPLETE );
     assert( totalReceived <= responseBufferLen );
+    dbc_info_mem("getFinalResponseStatus", totalReceived, responseBufferLen);
 
     /* If no parsing occurred, that means network data was never received. */
     if( parsingState == HTTP_PARSING_NONE )
@@ -2008,6 +2015,7 @@ static HTTPStatus_t getFinalResponseStatus( HTTPParsingState_t parsingState,
                         " interface: Response buffer has insufficient "
                         "space: responseBufferLen=%lu",
                         ( unsigned long ) responseBufferLen ) );
+            dbc_error_mem("Cannot receive complete response from transport", totalReceived, responseBufferLen);
             returnStatus = HTTPInsufficientMemory;
         }
         else

@@ -30,6 +30,9 @@
 #ifndef CORE_HTTP_CLIENT_PRIVATE_H_
 #define CORE_HTTP_CLIENT_PRIVATE_H_
 
+void dbc_error_mem(const char* s, unsigned long len, unsigned long remaining );
+void dbc_info_mem(const char* s, unsigned long len, unsigned long remaining );
+
 /**
  * @cond DOXYGEN_IGNORE
  * http-parser defaults this to 1, llhttp to 0.
